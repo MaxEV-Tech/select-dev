@@ -7,26 +7,12 @@ import pandas as pd
 from pathlib import Path
 from prettytable import PrettyTable
 
-from src.utils import get_headers
+from src.utils import get_headers, prepare_tour
 
 logging.basicConfig(level=logging.DEBUG,  # Устанавливаем уровень логирования
                     format='%(asctime)s - %(levelname)s - %(message)s',  # Формат вывода сообщений
                     handlers=[logging.StreamHandler()])
 logger = logging.getLogger("updater")
-
-
-def prepare_tour(tour):
-    if 'Statistics' in tour:
-        stat = tour['Statistics']
-        if 'Statistic' in stat:
-            stat = stat['Statistic']
-            if type(stat) == list:
-                for s in stat:
-                    tour[s['@id']] = s['$']
-            else:
-                tour[stat['@id']] = stat['$']
-        tour.pop('Statistics')
-    return tour
 
 
 class Collector:
@@ -55,10 +41,12 @@ class Collector:
 
     def update_network(self, network):
         last_tour_time = self.get_last_tour_time(f'/home/dron/poker_data/{network}.csv')
+        # rewrite that to get it from BD
         tour_list = self.get_completed_tournaments(last_tour_time, network)
         if tour_list and isinstance(tour_list, list):
             logger.info(f'From {network} received {len(tour_list)} tournaments')
             self.add_tournaments(tour_list, network)
+            # rewrite that to put it to BD
         else:
             logger.warning(f'Data on new tournaments cannot be retrieved from {network}.')
 
@@ -102,6 +90,9 @@ class Collector:
         except Exception as e:
             logger.error(f'Cannot to recieve max time {e}')
             return None
+
+    def upload_data_to_BD(self):
+        pass
 
     def stat(self):
         table = PrettyTable()

@@ -24,3 +24,18 @@ def get_statistics_headers():
         'Password': 'a9b7f1ea8c3ce86e709f45719f8eea3f',
         'User-Agent': 'Mozzila'
     }
+
+
+def prepare_tour(tour):
+    if 'Statistics' in tour:
+        stat = tour['Statistics']
+        if 'Statistic' in stat:
+            stat = stat['Statistic']
+            if type(stat) == list:
+                for s in stat:
+                    tour[s['@id']] = s['$']
+            else:
+                tour[stat['@id']] = stat['$']
+        tour.pop('Statistics')
+    return tour
+
