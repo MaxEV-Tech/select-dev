@@ -24,7 +24,18 @@ coll = Collector(['Winamax.fr', 'PokerStars', 'PokerStars(FR-ES-PT)', 'GGNetwork
 coll.update_data()
 coll.stat()
 
+from src.predictors.ability_predictor import AbilityPredictor
 
+
+network = 'Winamax.fr'
+df = pd.read_json('tmp.json')
+ap = AbilityPredictor(network)
+prediction = ap.predict(df)
+print(prediction.columns)
+prediction['buyin'] = prediction['@rake'] + prediction['@stake']
+for buyin in sorted(prediction['buyin'].unique().tolist()):
+    print(prediction[prediction['buyin'] == buyin])
+print(prediction)
 
 
 
